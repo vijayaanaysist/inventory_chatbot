@@ -5,30 +5,34 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Inventory Chatbot API is running!"
+    return "Inventory Chatbot API is running!"@app.route("/chat", methods=["POST"])
+def webhook():
+    req = request.get_json()
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    msg = data.get("message", "").lower()
+    intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
+    text = req.get("queryResult", {}).get("queryText", "").lower()
 
-    if "stock" in msg:
-        item = msg.replace("how many", "").replace("stock", "").strip()
-        return jsonify({"response": get_stock(item)})
+    print("Intent:", intent)
+    print("Text:", text)
 
-    elif "low" in msg:
-        items = low_stock_items()
-        return jsonify({"response": items if items else "No low stock items"})
+    # Extract item name (simple logic)
+    item = text.replace("how many", "").replace("stock", "").replace("supplier for", "").strip()
 
-    elif "reorder" in msg:
-        return jsonify({"response": reorder_alert().to_dict(orient="records")})
+    if intent == "Check_Stock":
+        response = get_stock(item)
 
-    elif "supplier" in msg:
-        item = msg.replace("supplier for", "").strip()
-        return jsonify({"response": get_supplier(item)})
+    elif intent == "Low_Stock":
+        response = str(low_stock_items())
+
+    elif intent == "Supplier_Info":
+        response = str(get_supplier(item))
+
+    elif intent == "Reorder_Items":
+        response = str(reorder_alert().to_dict(orient="records"))
 
     else:
-        return jsonify({"response": "I can help with stock, low stock, reorder, or suppliers."})
+        response = "Not available"
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    return jsonify({
+        "fulfillmentText": response
+    })
