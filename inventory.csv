@@ -1,0 +1,6 @@
+item_id,item_name,category,quantity,threshold,supplier,contact
+1,Laptop,Electronics,25,10,Dell India,9876543210
+2,Mouse,Electronics,5,10,Logitech,9123456780
+3,Keyboard,Electronics,12,10,HP India,9988776655
+4,Monitor,Electronics,8,5,Samsung,9001122334
+5,Chair,Furniture,20,10,Ikea,9112233445
